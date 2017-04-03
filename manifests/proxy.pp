@@ -462,7 +462,7 @@ class zabbix::proxy (
     default      : { fail("Unrecognized database type for proxy: ${database_type}") }
   }
 
-  if $manage_database == true {
+  if $manage_database {
     case $database_type {
       'postgresql' : {
         # Execute the postgresql scripts
@@ -550,17 +550,6 @@ class zabbix::proxy (
   }
 
   # Controlling the 'zabbix-proxy' service
-<<<<<<< HEAD
-  service { $proxy_service_name:
-    ensure     => running,
-    enable     => $enable,
-    hasstatus  => true,
-    hasrestart => true,
-    require    => [
-      Package["zabbix-proxy-${db}"],
-      File[$include_dir],
-      File[$proxy_configfile_path]],
-=======
   if $manage_service == true {
     service { $proxy_service_name:
       ensure     => running,
@@ -572,14 +561,6 @@ class zabbix::proxy (
         File[$include_dir],
         File[$proxy_configfile_path]],
     }
-  }
-
-  # setup relationship
-  if defined(Service[$proxy_service_name]) {
-    $proxy_before = [ Service[$proxy_service_name], Class["zabbix::database::${database_type}"] ]
-  } else {
-    $proxy_before = [ Class["zabbix::database::${database_type}"] ]
->>>>>>>  $manage_service
   }
 
   # if we want to manage the databases, we do
