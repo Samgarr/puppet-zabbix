@@ -550,7 +550,7 @@ class zabbix::proxy (
   }
 
   # Controlling the 'zabbix-proxy' service
-  if $manage_service == true {
+  if $manage_service {
     service { $proxy_service_name:
       ensure     => running,
       hasstatus  => true,
@@ -563,9 +563,18 @@ class zabbix::proxy (
     }
   }
 
+  if $manage_database and $manage_service == false {
+    $before_database = 'Class["zabbix::database::${database_type}"]'
+  } else {
+    $before_database = '[
+        Service[$proxy_service_name],
+        Class["zabbix::database::${database_type}"],
+        ],'
+  }
+
   # if we want to manage the databases, we do
   # some stuff. (for maintaining database only.)
-  if $manage_database == true {
+  if $manage_database {
     class { '::zabbix::database':
       database_type     => $database_type,
       zabbix_type       => 'proxy',
@@ -576,10 +585,7 @@ class zabbix::proxy (
       zabbix_proxy      => $zabbix_proxy,
       zabbix_proxy_ip   => $zabbix_proxy_ip,
       notify            => Service[$proxy_service_name],
-      before            => [
-        Service[$proxy_service_name],
-        Class["zabbix::database::${database_type}"],
-        ],
+      before            => $before_database,
     }
   }
 
