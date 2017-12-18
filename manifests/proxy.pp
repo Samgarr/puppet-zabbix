@@ -564,12 +564,12 @@ class zabbix::proxy (
   }
 
   if $manage_database and $manage_service == false {
-    $before_database = 'Class["zabbix::database::${database_type}"]'
+    $before_database = Class["zabbix::database::${database_type}"]
   } else {
-    $before_database = '[
+    $before_database = [
         Service[$proxy_service_name],
-        Class["zabbix::database::${database_type}"],
-        ],'
+        Class["zabbix::database::${database_type}"]
+        ],
   }
 
   # if we want to manage the databases, we do
