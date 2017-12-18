@@ -183,6 +183,29 @@ describe 'zabbix::proxy' do
           it { is_expected.not_to contain_firewall('151 zabbix-proxy') }
         end
 
+        # If manage_service is true (default), it should create a service
+        # and ensure that it is running.
+        context 'when declaring manage_service is true' do
+          let :params do
+            {
+              manage_service: true
+            }
+          end
+
+          it { is_expected.to contain_service('zabbix-proxy').with_ensure('running') }
+        end
+
+        # When the manage_service is false, it may not make the service.
+        context 'when declaring manage_service is false' do
+          let :params do
+            {
+              manage_service: false
+            }
+          end
+
+          it { is_expected.not_to contain_service('zabbix-proxy') }
+        end
+
         # Make sure we have set some vars in zabbix_proxy.conf file. This is configuration file is the same on all
         # operating systems. So we aren't testing this for all opeating systems, just this one.
         context 'with zabbix_proxy.conf settings' do
